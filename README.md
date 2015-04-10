@@ -1,1 +1,1 @@
-# senz_datasource_apicrawler
+Cloud code project for senz_datasource_apicrawler. Cloud Code Guide: https://cn.avoscloud.com/docs/cloud_code_guide.html
