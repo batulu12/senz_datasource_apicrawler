@@ -12,41 +12,61 @@ app.get('/hello', function (req, res) {
     res.render('hello', {message: 'Congrats, you just set up your app!'});
 });
 
-var Url = require('url');
 var _ = require('underscore');
+var Models = require('cloud/module')
 
-var ApiEndpoint = AV.Object.extend('ApiEndpoint'),
-    CrawlResult = AV.Object.extend('CrawlResult');
-app.post('/apis/:api_id/fetch_and_store', function (req, res) {
-    var options,
-        api;
-    new AV.Query(ApiEndpoint).get(req.params['api_id'])
-        .then(function (apiEndpoint) {
-            var api = apiEndpoint;
-            options = {
-                method: req.body['method'] || api.get('method') || "GET",
-                url: Url.format({
-                    protocol: api.get('protocol'),
-                    hostname: api.get('hostname'),
-                    pathname: api.get('path')
-                }),
-                params: _.defaults(req.body['query'] || {}, api.get('query')),
-                body: _.defaults(req.body['data'] || {}, api.get('query'))
-            };
-            return AV.Cloud.httpRequest(_.clone(options));
-        }).then(function (body) {
-            var result = {
-                options: options,
-                api: api,
-                result: JSON.parse(body.text)
-            };
-            _.extend(result, options);
-            (new CrawlResult(result).save());
-        }).then(function (result) {
-            res.send(result);
-        }, function (err) {
-            res.error(err);
+var Database = require('cloud/database')();
+var Kr = require('cloud/source/kr')();
+
+var updateItem = function (itemId, newItemFetcher, dbItemFetcher, ItemClass) {
+    var promise = new AV.Promise(),
+        dbItem, newItem;
+    console.log('update item ,%s', itemId);
+    newItemFetcher(itemId)
+        .then(function (item) {
+            newItem = item;
+            newItem.itemId = itemId;
+            newItem = _.omit(newItem, 'id');
+            return dbItemFetcher(itemId);
         })
-});
+        .then(function (founder) {
+            dbItem = founder;
+            if (dbItem) {
+                if (_.isEqual(_.omit(dbItem.get('raw')), newItem)) {
+                    console.log('cached,%s', itemId);
+                    return new AV.Promise.as(founder);
+                } else {
+                    console.log('changed,%s', itemId);
+                    var tmpFounder = new ItemClass(newItem);
+                    //tmpFounder.id = dbFounder.id;
+                    tmpFounder.set('raw', newItem);
+                    return tmpFounder.save();
+                }
+            } else {
+                newItem.raw = _.clone(newItem);
+                console.log('new item,%s', itemId);
+                return new ItemClass(_.extend(newItem, {itemId: itemId})).save();
+            }
+        })
+        .then(function (founder) {
+            //founderBasic = founder;
+            //console.log(JSON.stringify(founder.get('raw')));
+            console.log('update completed,%s', itemId);
+            promise.resolve(founder);
+        }, function (err) {
+            console.log(err);
+            promise.reject(err);
+        })
+    return promise;
+}
+
+//updateItem(9733, Kr.getFounderBasic, Database.getLatestKrFounder, Models.KrFounder)
+updateItem(133592, Kr.getCompanyInfo, Database.getLatestKrCompany, Models.KrCompany)
+
+//fetchAndStoreCompanyByUser(13644);
+
+//updateCompanyByUser(9733);
+
+//updateUser(9733);
 
 app.listen();
