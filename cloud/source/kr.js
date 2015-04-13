@@ -3,6 +3,7 @@
  */
 
 var Url = require('url');
+var _ = require('underscore');
 
 module.exports = function () {
     var sendHttpRequest = function (options) {
@@ -46,10 +47,16 @@ module.exports = function () {
     }
 
     var getCompanyInfo = function (companyId) {
-        return sendHttpRequest({
+        var promise = new AV.Promise();
+        sendHttpRequest({
             method: 'GET',
             pathname: '/api/company/' + companyId
+        }).then(function (company) {
+            promise.resolve(company.company);
+        }, function (err) {
+            promise.reject(err);
         })
+        return promise;
     }
 
     return {

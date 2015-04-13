@@ -8,12 +8,9 @@ app.set('view engine', 'ejs');    // 设置 template 引擎
 app.use(express.bodyParser());    // 读取请求 body 的中间件
 
 // 使用 Express 路由 API 服务 /hello 的 HTTP GET 请求
-app.get('/hello', function (req, res) {
-    res.render('hello', {message: 'Congrats, you just set up your app!'});
-});
 
 var _ = require('underscore');
-var Models = require('cloud/module')
+var Models = require('cloud/model')
 
 var Database = require('cloud/database')();
 var Kr = require('cloud/source/kr')();
@@ -21,7 +18,6 @@ var Kr = require('cloud/source/kr')();
 var updateItem = function (itemId, newItemFetcher, dbItemFetcher, ItemClass) {
     var promise = new AV.Promise(),
         dbItem, newItem;
-    console.log('update item ,%s', itemId);
     newItemFetcher(itemId)
         .then(function (item) {
             newItem = item;
@@ -33,12 +29,9 @@ var updateItem = function (itemId, newItemFetcher, dbItemFetcher, ItemClass) {
             dbItem = founder;
             if (dbItem) {
                 if (_.isEqual(_.omit(dbItem.get('raw')), newItem)) {
-                    console.log('cached,%s', itemId);
-                    return new AV.Promise.as(founder);
+                    return founder.save();
                 } else {
-                    console.log('changed,%s', itemId);
                     var tmpFounder = new ItemClass(newItem);
-                    //tmpFounder.id = dbFounder.id;
                     tmpFounder.set('raw', newItem);
                     return tmpFounder.save();
                 }
@@ -49,9 +42,6 @@ var updateItem = function (itemId, newItemFetcher, dbItemFetcher, ItemClass) {
             }
         })
         .then(function (founder) {
-            //founderBasic = founder;
-            //console.log(JSON.stringify(founder.get('raw')));
-            console.log('update completed,%s', itemId);
             promise.resolve(founder);
         }, function (err) {
             console.log(err);
@@ -60,8 +50,58 @@ var updateItem = function (itemId, newItemFetcher, dbItemFetcher, ItemClass) {
     return promise;
 }
 
+var updateCompaniesByUser = function (userId) {
+    var promise = new AV.Promise(),
+        user, companies, userCompanies;
+    updateItem(userId, Kr.getFounderBasic, Database.getLatestKrFounder, Models.KrFounder)
+        .then(function (founder) {
+            user = founder;
+            return Kr.getFounderCompany(founder.get('itemId'));
+        }).then(function (founderCompanies) {
+            var promises = [];
+            founderCompanies.expList.forEach(function (company) {
+                var promise = updateItem(company.groupId, Kr.getCompanyInfo, Database.getLatestKrCompany, Models.KrCompany)
+                promises.push(promise);
+            })
+            return AV.Promise.all(promises);
+        }).then(function (cs) {
+            companies = cs;
+            //console.log('companies');
+            //console.log(companies.length);
+            return Database.getLatestKrUserCompany(user.id);
+        }).then(function (userCompany) {
+            if (!userCompany) {
+                userCompany = new Models.KrUserCompany();
+                userCompany.set('user', user);
+            }
+            var uCompanies = userCompany.relation('companies');
+            companies.forEach(function (c) {
+                uCompanies.add(c);
+            });
+            return userCompany.save();
+        }).then(function (userCompany) {
+            promise.resolve(userCompany);
+        }, function (err) {
+            promise.reject(err);
+        })
+    return promise;
+}
+
+app.post('/user/:userId/updateAll', function (req, res) {
+    var userId = req.params['userId'];
+    console.log('userId,%s', userId);
+    updateCompaniesByUser(userId)
+        .then(function (userCompany) {
+            res.send(userCompany);
+            console.log('updateCompaniesByUser success,%s', userCompany.id);
+        }, function (err) {
+            console.log('updateCompaniesByUser failed');
+            res.status(500).send(err);
+        })
+});
+
 //updateItem(9733, Kr.getFounderBasic, Database.getLatestKrFounder, Models.KrFounder)
-updateItem(133592, Kr.getCompanyInfo, Database.getLatestKrCompany, Models.KrCompany)
+//updateItem(133592, Kr.getCompanyInfo, Database.getLatestKrCompany, Models.KrCompany)
 
 //fetchAndStoreCompanyByUser(13644);
 

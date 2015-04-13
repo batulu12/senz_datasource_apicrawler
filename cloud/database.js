@@ -2,7 +2,7 @@
  * Created by fengxiaoping on 4/13/15.
  */
 
-var Models = require('cloud/module')
+var Models = require('cloud/model')
 
 module.exports = function () {
     var queryItemByField = function (QueryClass, fieldName, id) {
@@ -29,9 +29,16 @@ module.exports = function () {
         return query.first();
     }
 
+    var getLatestKrUserCompany = function (userId) {
+        var query = queryItemByField(Models.KrUserCompany, 'user', new Models.KrFounder({id: userId}));
+        query.descending('createdAt');
+        return query.first();
+    }
+
     return {
         getLatestKrFounder: getLatestKrFounder,
-        getLatestKrCompany: getLatestKrCompany
+        getLatestKrCompany: getLatestKrCompany,
+        getLatestKrUserCompany: getLatestKrUserCompany
     }
 
 }

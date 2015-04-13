@@ -6,5 +6,6 @@ module.exports = {
     ApiEndpoint: AV.Object.extend('ApiEndpoint'),
     CrawlResult: AV.Object.extend('CrawlResult'),
     KrCompany: AV.Object.extend('KrCompany'),
-    KrFounder: AV.Object.extend('KrFounder')
+    KrFounder: AV.Object.extend('KrFounder'),
+    KrUserCompany: AV.Object.extend('KrUserCompany')
 }
