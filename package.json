@@ -2,6 +2,7 @@
   "name": "application-name",
   "version": "0.0.1",
   "dependencies": {
-    "underscore": "latest"
+    "underscore": "latest",
+    "cheerio": "^0.18.0"
   }
 }

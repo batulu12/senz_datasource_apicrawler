@@ -7,5 +7,10 @@ module.exports = {
     CrawlResult: AV.Object.extend('CrawlResult'),
     KrCompany: AV.Object.extend('KrCompany'),
     KrFounder: AV.Object.extend('KrFounder'),
+    Activity: AV.Object.extend('Activity'),
+    WdjApp: AV.Object.extend('WdjApp'),
+    AppStore: AV.Object.extend('AppStore'),
+    DbMovie: AV.Object.extend('DbMovie'),
+    DzdpInfo: AV.Object.extend('DzdpInfo'),
     KrUserCompany: AV.Object.extend('KrUserCompany')
 }

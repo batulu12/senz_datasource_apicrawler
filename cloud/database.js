@@ -29,6 +29,36 @@ module.exports = function () {
         return query.first();
     }
 
+    var getLatestActivity= function (activityId) {
+        var query = queryItemByField(Models.Activity, 'activityId', activityId);
+        query.descending('createdAt');
+        return query.first();
+    }
+
+    var getLatestApp= function (appId) {
+        var query = queryItemByField(Models.WdjApp, 'appId', appId);
+        query.descending('createdAt');
+        return query.first();
+    }
+
+    var getLatestAppleApp= function (appId) {
+        var query = queryItemByField(Models.AppStore, 'trackId', appId);
+        query.descending('createdAt');
+        return query.first();
+    }
+
+    var getLatestMovie= function (movieId) {
+        var query = queryItemByField(Models.DbMovie, 'movieId', movieId);
+        query.descending('createdAt');
+        return query.first();
+    }
+
+    var getLatestDzdp=function(itemId){
+        var query = queryItemByField(Models.DzdpInfo, 'itemId', itemId);
+        query.descending('createdAt');
+        return query.first();
+    }
+
     var getLatestKrUserCompany = function (userId) {
         var query = queryItemByField(Models.KrUserCompany, 'user', new Models.KrFounder({id: userId}));
         query.descending('createdAt');
@@ -37,6 +67,11 @@ module.exports = function () {
 
     return {
         getLatestKrFounder: getLatestKrFounder,
+        getLatestActivity:getLatestActivity,
+        getLatestApp:getLatestApp,
+        getLatestAppleApp:getLatestAppleApp,
+        getLatestDzdp:getLatestDzdp,
+        getLatestMovie:getLatestMovie,
         getLatestKrCompany: getLatestKrCompany,
         getLatestKrUserCompany: getLatestKrUserCompany
     }
