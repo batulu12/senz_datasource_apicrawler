@@ -305,80 +305,151 @@ var getDzdp = function (itemId, ItemClass) {
     })
 }
 
-
+//大众点评  POST
+//curl -X POST http://localhost:3000/dzdp/10981869/update
 app.post('/dzdp/:itemId/update', function (req, res) {
     var itemId = req.params['itemId'];
     getDzdp(itemId, Models.DzdpInfo);
-
     // send request to dzdp api to fetch latest info of this app
-
     // update app info in leancloud
 })
+//大众点评 GET
+//http://localhost:3000/dzdp/10981869
+var getDzdpItem= function (itemId,res) {
+    Dzdp.getDzdpInfo(itemId).then(function (item) {
+        res.send(item);
+    })
 
+}
+app.get('/dzdp/:itemId', function (req, res) {
+    var itemId = req.params['itemId'];
+    getDzdpItem(itemId,res);
+});
 
+//豌豆荚 POST
+//http://localhost:3000/app/com.talkweb.dadwheregoing/update
 app.post('/app/:appId/update', function (req, res) {
     var appId = req.params['appId'];
     getAppInfo(appId, Models.WdjApp);
-
     // send request to wandoujia api to fetch latest info of this app
-
     // update app info in leancloud
 })
+//豌豆荚 GET
+//http://localhost:3000/app/com.talkweb.dadwheregoing
+var getWdjApp= function (appId,res) {
+    Wdj.getAppInfo(appId).then(function (item) {
+        res.send(item);
+    })
 
+}
+app.get('/app/:appId', function (req, res) {
+    var appId = req.params['appId'];
+    getWdjApp(appId,res);
+});
+
+//appstore POST
+//curl -X POST http://localhost:3000/appstore/709306740/update
 app.post('/appstore/:appId/update', function (req, res) {
     var appId = req.params['appId'];
     getAppStoreInfo(appId, Models.AppStore);
-
     // send request to wandoujia api to fetch latest info of this app
-
     // update app info in leancloud
 })
+//appstore GET
+//http://localhost:3000/appstore/709306740
+var getAppStoreApp= function (appId,res) {
+    AppStore.getAppStoreInfo(appId).then(function (item) {
+        res.send(item);
+    })
 
+}
+app.get('/appstore/:appId', function (req, res) {
+    var appId = req.params['appId'];
+    getAppStoreApp(appId,res);
+});
+
+
+//大麦POST
+//curl -X POST http://localhost:3000/damai/75374/update
 app.post('/damai/:activityId/update', function (req, res) {
     var activityId = req.params['activityId'];
     getDamaiActivity(activityId, Models.Activity);
-
     // send request to damai api to fetch latest info of this app
-
     // update app info in leancloud
 })
+//大麦 GET
+//http://localhost:3000/damai/75374
+var getDamai= function (activityId,res) {
+    Damai.getActivityInfo(activityId).then(function (item) {
+       res.send(item);
+    })
 
+}
+app.get('/damai/:activityId', function (req, res) {
+    var activityId = req.params['activityId'];
+    getDamai(activityId,res);
+});
+
+
+//豆瓣电影 POST
+//curl -X POST http://localhost:3000/dbmovie/23761370/update
 app.post('/dbmovie/:movieId/update', function (req, res) {
     var movieId = req.params['movieId'];
     console.log('movieId,%s', movieId);
     getMovieName(movieId,Models.DbMovie);
-
     // send request to damai api to fetch latest info of this app
-
     // update app info in leancloud
 })
+//豆瓣电影 GET
+//http://localhost:3000/dbmovie/23761370
+var getDbMovie= function (movieId,res) {
+    Dbmovie.getMovieInfo(movieId).then(function (item) {
+        res.send(item);
+    })
 
+}
+app.get('/dbmovie/:movieId', function (req, res) {
+    var movieId = req.params['movieId'];
+    getDbMovie(movieId,res);
+});
+
+
+//豆瓣同城 POST
+//curl -X POST http://localhost:3000/activity/23803221/update
 app.post('/activity/:activityId/update', function (req, res) {
     var activityId = req.params['activityId'];
     getActivityName(activityId, Models.Activity);
-
     // send request to doubantongcheng api to fetch latest info of this app
-
     // update app info in leancloud
 })
+//豆瓣同城 GET
+//http://localhost:3000/activity/23937886
+var getDbcity = function (activityId,res) {
+    DbCity.getActivityInfo(activityId).then(function (item) {
+        res.send(item);
+    })
 
-app.post('/user/:userId/updateAll', function (req, res) {
-    var userId = req.params['userId'];
-    console.log('hhhhhhh userId,%s', userId);
-    updateCompaniesByUser(userId)
-        .then(function (userCompany) {
-            res.send(userCompany);
-            console.log('updateCompaniesByUser success,%s', userCompany.id);
-        }, function (err) {
-            console.log('updateCompaniesByUser failed');
-            res.status(500).send(err);
-        })
+}
+app.get('/activity/:activityId', function (req, res) {
+    var activityId = req.params['activityId'];
+    getDbcity(activityId,res);
 });
 
-app.get('/hello', function (req, res) {
-    //res.render('hello', { message: 'Congrats, you just set up your app!' });
-    res.send('niuyueke');
-});
+//app.post('/user/:userId/updateAll', function (req, res) {
+//    var userId = req.params['userId'];
+//    updateCompaniesByUser(userId)
+//        .then(function (userCompany) {
+//            res.send(userCompany);
+//            console.log('updateCompaniesByUser success,%s', userCompany.id);
+//        }, function (err) {
+//            console.log('updateCompaniesByUser failed');
+//            res.status(500).send(err);
+//        })
+//});
+
+
+
+
 
 //updateItem(9733, Kr.getFounderBasic, Database.getLatestKrFounder, Models.KrFounder)
 //updateItem(133592, Kr.getCompanyInfo, Database.getLatestKrCompany, Models.KrCompany)
